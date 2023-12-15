@@ -3,8 +3,12 @@ module.exports = app => {
   
     let router = require("express").Router();
 
-    // Create a payment intent then confirm it
+    // Check UPS status via a tracking number
     router.post('/track/{:inquiryNumber}', ups.track  // #swagger.tags = ['stripe']
+    );
+
+    // Create an auth token for the user
+    router.get('/token', ups.getToken  // #swagger.tags = ['stripe']
     );
   
     app.use("/api/ups", router);
