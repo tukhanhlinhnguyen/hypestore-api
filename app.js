@@ -5,6 +5,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+
 var app = express();
 app.use(cors());
 
@@ -18,6 +19,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 /*                                   ROUTES                                   */
 /* -------------------------------------------------------------------------- */
 require("./routes/stripe.routes")(app);
+require("./routes/ups.routes")(app);
+require("./routes/email.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
