@@ -60,8 +60,8 @@ exports.createPaymentIntents = async (req, res) => {
 
 // Create and Save a new Order
 exports.listen = async (req, res) => {
-    let payload = req.body;
-    console.log('req.body:', req.body)
+    let payload = req;
+    console.log('req.body:', req)
     if (payload && payload.event_name) {
       switch (payload.event_name) {
         case "DASHER_PICKED_UP":

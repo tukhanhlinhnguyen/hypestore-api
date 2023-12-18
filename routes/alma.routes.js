@@ -8,7 +8,7 @@ module.exports = app => {
     );
 
     // Make webhook listen
-    router.post(
+    router.get(
         "/webhook",
         alma.listen // #swagger.tags = ['clients']
     );
