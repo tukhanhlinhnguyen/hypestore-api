@@ -21,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 require("./routes/stripe.routes")(app);
 require("./routes/ups.routes")(app);
 require("./routes/email.routes")(app);
+require("./routes/alma.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;

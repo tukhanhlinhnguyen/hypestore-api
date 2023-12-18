@@ -20,8 +20,7 @@ exports.track = async (req, res) => {
         'url': url,
         'headers': {
           'access-token': process.env.TOKEN        
-        },
-        json
+        }
       }
       
       // promise syntax
