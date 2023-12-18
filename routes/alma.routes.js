@@ -12,6 +12,12 @@ module.exports = app => {
         "/webhook",
         alma.listen // #swagger.tags = ['clients']
     );
+
+    // Make webhook listen
+    router.post(
+        "/webhook",
+        alma.listen // #swagger.tags = ['clients']
+    );
   
     app.use("/api/alma", router);
 };

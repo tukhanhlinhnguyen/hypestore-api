@@ -22,7 +22,8 @@ exports.createPaymentIntents = async (req, res) => {
       "locale": "fr",
       "expires_after": 2880,
       "capture_method": "automatic",
-      "purchase_amount": 30000
+      "purchase_amount": 30000,
+      "ipn_callback_url" : "https://api.hypestore.fr/api/alma/webhook"
     }}
 
       let options = {
@@ -62,11 +63,4 @@ exports.createPaymentIntents = async (req, res) => {
 exports.listen = async (req, res) => {
     let payload = req;
     console.log('req.body:', req)
-    if (payload && payload.event_name) {
-      switch (payload.event_name) {
-        case "DASHER_PICKED_UP":
-          
-          break;
-      }
-    }
   };
