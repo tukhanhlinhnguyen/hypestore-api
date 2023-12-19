@@ -4,7 +4,7 @@ module.exports = app => {
     let router = require("express").Router();
 
     // Check UPS status via a tracking number
-    router.post('/track/{:inquiryNumber}', ups.track  // #swagger.tags = ['stripe']
+    router.get('/track/:inquiryNumber', ups.track  // #swagger.tags = ['stripe']
     );
 
     // Create an auth token for the user

@@ -14,20 +14,29 @@ exports.track = async (req, res) => {
   
     try {
       const url = `${process.env.UPSAPIURL}/api/track/v1/details/${inquiryNumber}?locale=fr_FR&returnSignature=false`;
-
-      let options = {
-        'method': 'GET',
-        'url': url,
-        'headers': {
-          'access-token': process.env.TOKEN        
+      getTokenServer(function(token){
+        console.log('token:', token)
+        
+        let options = {
+          'method': 'GET',
+          'url': url,
+          'headers': {
+            'authorization': "Bearer "+token,
+            'transactionSrc': 'testing',
+            'transId' : 'string'
+          }
         }
-      }
-      
-      // promise syntax
-      request(options, function (error, response) {
-      console.log('response:', response)
-
-      })
+        
+        // promise syntax
+        request(options, function (error, response) {
+          if(response.statusCode === 200){
+            res.status(200).send(response.body)
+          }else{
+            res.status(500).send(response.body)
+          }
+  
+        })
+      });
 
     } catch (err) {
         console.log(err);
@@ -36,6 +45,50 @@ exports.track = async (req, res) => {
             err.message || "Some error occurred while finding payment method."
         });
     }
+}
+
+function getTokenServer(callback){
+
+  try {
+    const url = `${process.env.UPSAPIURL}/security/v1/oauth/token`;
+
+    
+    let username = process.env.UPSUSERNAME;
+    let password = process.env.UPSPWD;
+    let auth = 'Basic ' + Buffer.from(username + ':' + password).toString('base64');
+    let json = {"grant_type" : "client_credentials"}
+
+    let options = {
+      'method': 'POST',
+      'url': url,
+      'headers': {
+        'access-token': process.env.TOKEN,
+        'Authorization': auth,
+        'Content-Type':'application/x-www-form-urlencoded'     
+      },
+      'form': {
+        grant_type: 'client_credentials',
+    },
+      
+    }
+    
+    // promise syntax
+    return request(options, async function (error, response) {
+      if(response.statusCode === 200){
+        let resJSON = await JSON.parse(response.body)
+        console.log('resJSON:', resJSON)
+        let access_token = resJSON.access_token
+        let expires_in = resJSON.expires_in
+        callback(access_token);
+      }else{
+        callback(false);
+      }
+    })
+
+  } catch (err) {
+      console.log(err);
+      callback(false);
+  }
 }
 
 
