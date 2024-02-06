@@ -10,6 +10,10 @@ module.exports = app => {
     // Create an auth token for the user
     router.get('/token', ups.getToken  // #swagger.tags = ['stripe']
     );
+
+    // Create an auth token for the user
+    router.post('/create', ups.create  // #swagger.tags = ['stripe']
+    );
   
     app.use("/api/ups", router);
 };

@@ -15,7 +15,6 @@ exports.track = async (req, res) => {
     try {
       const url = `${process.env.UPSAPIURL}/api/track/v1/details/${inquiryNumber}?locale=fr_FR&returnSignature=false`;
       getTokenServer(function(token){
-        console.log('token:', token)
         
         let options = {
           'method': 'GET',
@@ -76,7 +75,6 @@ function getTokenServer(callback){
     return request(options, async function (error, response) {
       if(response.statusCode === 200){
         let resJSON = await JSON.parse(response.body)
-        console.log('resJSON:', resJSON)
         let access_token = resJSON.access_token
         let expires_in = resJSON.expires_in
         callback(access_token);
@@ -146,4 +144,193 @@ exports.getToken = async (req, res) => {
           err.message || "Some error occurred while finding payment method."
       });
   }
+}
+
+//Create a UPS label
+// track a shipment via inquiryNumber
+exports.create = async (order_id, shippingAddress) => {
+
+  try {
+    const url = `${process.env.DOLIBARRURL}/orders/${order_id}`;
+
+    let options = {
+      'method': 'GET',
+      'url': url,
+      'headers': {
+        'DOLAPIKEY': process.env.DOLIBARRTOKEN,
+      }
+    }
+    // promise syntax
+    request(options, function (error, response) {
+      if(response.statusCode === 200){
+        let resJSON = JSON.parse(response.body)
+        const url = `${process.env.UPSAPIURL}/api/shipments/v1/ship`;
+
+        getTokenServer(function(token){
+          let json = createShippmentJson(resJSON, shippingAddress);
+          
+          let options = {
+            'method': 'POST',
+            'url': url,
+            'headers': {
+              'authorization': "Bearer "+token,
+              'transactionSrc': 'testing',
+              'transId' : 'string'
+            },
+            json
+          }
+          
+          // promise syntax
+          request(options, function (error, response) {
+            console.log('🌅🌅🌅🌅🌅🌅🌅🌅🌅🌅🌅🌅🌅🌅', response.body)
+            
+            if(response.statusCode === 200){
+              const url = `${process.env.DOLIBARRURL}/orders/${order_id}`;
+
+              let options = {
+                'method': 'GET',
+                'url': url,
+                'headers': {
+                  'DOLAPIKEY': process.env.DOLIBARRTOKEN,
+                }
+              }
+            }
+          })
+        });
+
+
+      }else{
+        // res.status(500).send(response.body)
+      }
+
+    })
+  } catch (err) {
+      console.log(err);
+      // res.status(500).send({
+      //   msg:
+      //     err.message || "Some error occurred while finding payment method."
+      // });
+  }
+}
+
+
+
+function createShippmentJson(json, shippingAddress){
+  let shipmentRequest = {
+    "ShipmentRequest": {
+      "Request": {
+        "SubVersion": "1801",
+        "RequestOption": "nonvalidate",
+        "TransactionReference": {
+          "CustomerContext": "Commande 1"
+        },
+        "Description": json.id,
+      },
+      "Shipment": {
+        "ReferenceNumber": {
+          "Code": "ON",
+          "Value": json.id
+        },
+        "Description": json.id,
+        "Shipper": {
+          "Name": "Hype Store",
+          "AttentionName": "Hype Store",
+          "Phone": {
+            "Number": "0749658883",
+            "Extension": " "
+          },
+          "ShipperNumber": "F9247K",
+          "Address": {
+            "AddressLine": [
+              "5 Rue Louis Rège"
+            ],
+            "City": "Marseille",
+            "StateProvinceCode": "13",
+            "PostalCode": "13007",
+            "CountryCode": "FR"
+          }
+        },
+        "ShipTo": {
+          "Name": shippingAddress.firstName +" "+ shippingAddress.lastName,
+          "AttentionName": "",
+          "Phone": {
+            "Number": shippingAddress.phone.replaceAll(' ', '')
+          },
+          "Address": {
+            "AddressLine": [
+              shippingAddress.address
+            ],
+            "City": shippingAddress.town,
+            "StateProvinceCode": "",
+            "PostalCode": shippingAddress.zip,
+            "CountryCode": "FR"
+          },
+          "Residential": " "
+        },
+        "ShipFrom": {
+          "Name": "Hype Store",
+          "AttentionName": "Hype Store",
+          "Phone": {
+            "Number": "0749658883",
+          },
+          "FaxNumber": "",
+          "Address": {
+            "AddressLine": [
+              "5 Rue Louis Rège"
+            ],
+            "City": "Marseille",
+            "StateProvinceCode": "13",
+            "PostalCode": "13007",
+            "CountryCode": "FR"
+          }
+        },
+        "PaymentInformation": {
+          "ShipmentCharge": {
+            "Type": "01",
+            "BillShipper": {
+              "AccountNumber": "F9247K"
+            }
+          }
+        },
+        "Service": {
+          "Code": "07",
+          "Description": "Express"
+        },
+        "Package": {
+          "Description": json.id,
+          "Packaging": {
+            "Code": "02",
+            "Description": ""
+          },
+          "Dimensions": {
+            "UnitOfMeasurement": {
+              "Code": "CM",
+              "Description": "CM"
+            },
+            "Length": "10",
+            "Width": "30",
+            "Height": "45"
+          },
+          "PackageWeight": {
+            "UnitOfMeasurement": {
+              "Code": "KGS"
+            },
+            "Weight": "1"
+          }
+        }
+      },
+      "LabelSpecification": {
+        "LabelImageFormat": {
+          "Code": "GIF",
+          "Description": "GIF"
+        },
+        "HTTPUserAgent": "Mozilla/4.5"
+      }
+    }
+  };
+  // Convert to JSON
+  let jsonShipmentRequest = JSON.stringify(shipmentRequest, null, 2);
+  jsr = JSON.parse(jsonShipmentRequest)
+  console.log(jsr);
+  return jsr;
 }

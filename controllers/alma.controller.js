@@ -14,17 +14,27 @@ exports.createPaymentIntents = async (req, res) => {
 
   try {
     //we create an invocie
+    const { items, orderId, shippingAddress } = req.body;
+    let shippingAddressStr = JSON.stringify(shippingAddress)
+    let total = await calculateOrderAmount(items, orderId)
+    console.log('total:', total)
+
     const url = `${process.env.ALMAAPIURL}/payments`;
-    json = {"payment": {
-      "installments_count": 3,
-      "deferred_months": 0,
-      "deferred_days": 0,
-      "locale": "fr",
-      "expires_after": 2880,
-      "capture_method": "automatic",
-      "purchase_amount": 30000,
-      "ipn_callback_url" : "https://api.hypestore.fr/api/alma/webhook"
-    }}
+    json = {
+      "payment": {
+        "installments_count": parseInt(req.params.installments_count),
+        "deferred_months": 0,
+        "deferred_days": 0,
+        "locale": "fr",
+        "expires_after": 2880,
+        "capture_method": "automatic",
+        "purchase_amount": total,
+        "ipn_callback_url" : "https://api.hypestore.fr/api/alma/webhook",
+        "return_url" : "http://localhost:4200/shop/checkout/success?redirect_status=succeeded"
+      },
+      "order" :{
+        "merchant_reference" : orderId
+      }}
 
       let options = {
         'method': 'POST',
@@ -36,13 +46,17 @@ exports.createPaymentIntents = async (req, res) => {
         },
         json
       }
+
       
       // promise syntax
       request(options, function (error, response) {
+        let body = response.body.errors      
+        console.log('body:', body)
+        // console.log('body:', body)
         if(response && response.statusCode =="200"){
           console.log('response:', response.body.url)
           res.status(200).send({
-            'alma_url:' : response.body.url
+            'alma_url' : response.body.url
           })
         }
         //return error code

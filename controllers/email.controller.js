@@ -11,13 +11,6 @@ const transporter = nodemailer.createTransport({
     },
   });
 
-const calculateOrderAmount = (items) => {
-  // Replace this constant with a calculation of the order's amount
-  // Calculate the order total on the server to prevent
-  // people from directly manipulating the amount on the client
-  return 1400;
-};
-
 // Create a payment intent then return the client secret
 exports.contact = async (req, res) => {
   // Validate request
