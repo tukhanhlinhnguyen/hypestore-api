@@ -76,7 +76,7 @@ exports.createPaymentIntents = async (req, res) => {
 // Create and Save a new Order
 exports.listen = async (req, res) => {
     let payload = req;
+    console.log('payload:', payload)
     console.log('req.body:', req.body)
     console.log('pid', req.params.pid)
-
   };
