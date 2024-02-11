@@ -16,11 +16,12 @@ exports.createPaymentIntents = async (req, res) => {
     //we create an invocie
     const { items, orderId, shippingAddress } = req.body;
     // console.log('shippingAddress:', shippingAddress)
-    console.log(calculateOrderAmount(items));
+    let total = await calculateOrderAmount(items, orderId)
+
     let shippingAddressStr = JSON.stringify(shippingAddress)
     //Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: calculateOrderAmount(items),
+      amount: total,
       currency: "eur",
       // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
       automatic_payment_methods: {
