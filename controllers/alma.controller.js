@@ -1,4 +1,6 @@
 require("../services/data.service")();
+require("../services/order.service")();
+
 const request = require('request')
 
 
@@ -80,5 +82,47 @@ exports.listen = async (req, res) => {
     console.log('req.body:', req.body)
     console.log('pid', req.params.pid)
     console.log('payload:', payload.url)
+    
+    // let txtToBeParsed = payload.url
+    let txtToBeParsed = "/webhook?pid=payment_11yLqX8kLHzNJZzmGDaMSq4XHl6O2txToZ"
+    let pid = txtToBeParsed.split("pid=")[1]
+    if(pid){
+      //we call the Alma API to get in
+      try {
+        const url = `${process.env.ALMAAPIURL}/payments/${pid}`;
+    
+        let options = {
+          'method': 'GET',
+          'url': url,
+          'headers': {
+            'Authorization':"Alma-Auth " + process.env.ALMAAPIKEY,
+            'Content-Type': 'application/json' // token
+          }
+        }
+        // promise syntax
+        request(options, function (error, response) {
+          if(response && response.statusCode =="200"){
+            let resJSON = JSON.parse(response.body)
+            let paymentState = resJSON.state
+            let orderId = resJSON.orders[0].merchant_reference
+            console.log('orderId:', orderId)
+            let paymentURL = resJSON.url
 
+            if( paymentState == "in_progress" || paymentState == "scored_yes"){
+              validateOrder(paymentURL, orderId)
+            }
+          }
+          //return error code
+          else {
+            res.status(500).send((error))
+          }
+        })
+      } catch (err) {
+        console.log(err);
+        res.status(500).send({
+            msg:
+            err.message || `Some error occurred while finding the Alma payment with pid = ${pid} method.`
+        });
+    }
+    }
   };

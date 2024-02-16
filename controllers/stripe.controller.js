@@ -1,4 +1,5 @@
 require("../services/data.service")();
+require("../services/order.service")();
 const stripe = require('stripe')(process.env.STRIPEKEY);
 const ups = require("../controllers/ups.controller");
 
@@ -55,20 +56,15 @@ exports.listen = async (req, res) => {
   switch (event.type) {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
-      console.log('paymentIntent:', paymentIntent)
+      const { items, order_id, shippingAddress } = paymentIntent.metadata;
+
+      let paymentURL = paymentIntent.id
+      validateOrder(paymentURL, order_id)
       // Then define and call a method to handle the successful payment intent.
       // handlePaymentIntentSucceeded(paymentIntent);
       break;
     case 'payment_method.attached':
       const paymentMethod = event.data.object;
-      // Then define and call a method to handle the successful attachment of a PaymentMethod.
-      // handlePaymentMethodAttached(paymentMethod);
-      break;
-    // ... handle other event types
-    case 'charge.succeeded':
-      const chargeMethod = event.data.object;
-      const { items, order_id, shippingAddress } = chargeMethod.metadata;
-      let runups = await ups.create(order_id, JSON.parse(shippingAddress));
       // Then define and call a method to handle the successful attachment of a PaymentMethod.
       // handlePaymentMethodAttached(paymentMethod);
       break;
