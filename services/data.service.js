@@ -26,10 +26,7 @@ module.exports = function() {
             let body = JSON.parse(response.body)
             let total = 0;
             body.lines.forEach(element => {
-              console.log('element.subprice:', element.subprice)
-              console.log('element.qty:', element.qty)
               total+= (parseFloat(element.subprice) * parseInt(element.qty));
-              console.log('total:', total)
             });
             resolve(total*100);
           }

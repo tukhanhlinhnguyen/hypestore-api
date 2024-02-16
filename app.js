@@ -22,6 +22,7 @@ require("./routes/stripe.routes")(app);
 require("./routes/ups.routes")(app);
 require("./routes/email.routes")(app);
 require("./routes/alma.routes")(app);
+require("./routes/paypal.routes")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
