@@ -53,7 +53,9 @@ exports.contact = async (req, res) => {
             attachments.forEach(async file=>{
               await deleteFile(file.path)
             })
-            res.send("OK");
+            res.send({
+              msg : "Votre message a bien été transmis à nos équipes, nous vous répondrons dans les plus brefs délais."
+            });
         }
       });
   } catch (err) {
