@@ -24,10 +24,8 @@ module.exports = function() {
         request(options, function (error, response) {
           if(response && response.statusCode =="200"){
             let body = JSON.parse(response.body)
-            let total = 0;
-            body.lines.forEach(element => {
-              total+= (parseFloat(element.subprice) * parseInt(element.qty));
-            });
+            console.log('body:', body)
+            let total = body.total_ttc;
             resolve(total*100);
           }
           //return error code

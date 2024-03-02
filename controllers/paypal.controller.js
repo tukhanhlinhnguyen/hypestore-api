@@ -6,7 +6,7 @@ const ups = require("../controllers/ups.controller");
 
 // Create a payment intent then return the client secret
 exports.createPaymentIntents = async (req, res) => {
-    console.log("HEHEHEHEHEEHE")
+    console.log("Create paypal payment intent")
 
   // Validate request
   if (!req.body) {
