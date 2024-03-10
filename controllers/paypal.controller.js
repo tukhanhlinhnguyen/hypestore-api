@@ -30,7 +30,7 @@ exports.createPaymentIntents = async (req, res) => {
     console.log('items:', items)
 
     paypal.configure({
-        'mode': 'sandbox', //sandbox or live
+        'mode': 'live', //sandbox or live
         'client_id': process.env.PAYPALCLIENTID,
         'client_secret': process.env.PAYPALSECRET
     });

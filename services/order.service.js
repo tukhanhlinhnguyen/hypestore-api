@@ -3,6 +3,7 @@ const request = require('request')
 
 module.exports = function() {
     this.validateOrder = (paymentURL,orderId) => {
+        console.log("💸Validating order💸")
     //we receive the payment, now we need to update the order
     //Firstly we validate the order
 
